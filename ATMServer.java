@@ -41,9 +41,6 @@ public class ATMServer {
                 byte[] data = msg.getData();
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
-//                InetAddress IPAddress = InetAddress.getByName("10.100.2.1");
-//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//                ObjectOutputStream os = new ObjectOutputStream(outputStream);
                 Client atmMessage = (Client) is.readObject();
                 System.out.println("Message received.");
 
@@ -146,12 +143,4 @@ public class ATMServer {
             Socket.send(msg); // sends message
             
         }
-    /*
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
-            ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
-            os.writeObject(client); // writes new client to send message
-                byte[] b = outputStream.toByteArray(); // writes bytes to array
-                DatagramPacket msg = new DatagramPacket(b, b.length, IPAddress, 4445); // creates new datagram to send with coordinates
-                Socket.send(msg); // sends message
-    */
     }
