@@ -41,9 +41,9 @@ public class ATMServer {
                 byte[] data = msg.getData();
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
-                InetAddress IPAddress = InetAddress.getByName("10.100.2.1");
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                ObjectOutputStream os = new ObjectOutputStream(outputStream);
+//                InetAddress IPAddress = InetAddress.getByName("10.100.2.1");
+//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//                ObjectOutputStream os = new ObjectOutputStream(outputStream);
                 Client atmMessage = (Client) is.readObject();
                 System.out.println("Message received.");
 
@@ -60,11 +60,14 @@ public class ATMServer {
                             if (ClientDatabase.accountList.get(i).getAccountnum() == atmMessage.getAccountNumber()) {
                                 if (ClientDatabase.accountList.get(i).getPin() == atmMessage.getPin()) {
                                     openSessions.put(msg.getAddress(), atmMessage.getAccountNumber());
+                                    requestResponse(5, -1, msg.getAddress());
                                     System.out.println("Login Successful");
                                     foundAccount = true;
                                     break;
                                 } else {
+                                    requestResponse(6, -1, msg.getAddress());
                                     System.out.println("Wrong PIN");
+                                   
                                 }
                             } 
                         }
@@ -130,4 +133,25 @@ public class ATMServer {
             }
             // s.close();
         } // end of main
+    
+        static public void requestResponse(int responseType, int responseAmount, InetAddress clientAddress) throws IOException, ClassNotFoundException {
+            DatagramSocket Socket;
+            Socket = new DatagramSocket();
+            Client response = new Client(responseType, -1, -1, responseAmount);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
+            ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
+            os.writeObject(response); // writes new client to send message
+            byte[] b = outputStream.toByteArray(); // writes bytes to array
+            DatagramPacket msg = new DatagramPacket(b, b.length, clientAddress, 4445); // creates new datagram to send with coordinates
+            Socket.send(msg); // sends message
+            
+        }
+    /*
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
+            ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
+            os.writeObject(client); // writes new client to send message
+                byte[] b = outputStream.toByteArray(); // writes bytes to array
+                DatagramPacket msg = new DatagramPacket(b, b.length, IPAddress, 4445); // creates new datagram to send with coordinates
+                Socket.send(msg); // sends message
+    */
     }
