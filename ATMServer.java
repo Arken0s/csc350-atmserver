@@ -116,10 +116,7 @@ public class ATMServer {
                         requestResponse(6, -1, msg.getAddress());
                         System.out.println("Error");
                 }
-
-                String str = new String(msg.getData(), 0, msg.getLength());
-                System.out.print(str);
-
+                
             } catch (SocketTimeoutException ste) {    // receive() timed out
                 System.err.println("Response timed out!");
             } catch (Exception ioe) {                // should never happen!
