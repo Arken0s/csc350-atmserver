@@ -32,6 +32,18 @@ public class Account {
     public int getBalance() {
         return balance;
     }
+
+    public void setAccountnum(int accountnum) {
+        this.accountnum = accountnum;
+    }
+
+    public void setPin(int pin) {
+        this.pin = pin;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
     
     
 }
