@@ -11,6 +11,8 @@ public class Client implements Serializable {
     private int pin; // 4 numbers
     private int Request;
     private int amount;
+    private int balance;
+    private String S_Request;
 
     public Client() {
     }
@@ -26,12 +28,34 @@ public class Client implements Serializable {
         this.amount = amount;
     }
 
+    // setters
     public void setAccountNumber(int AccountNumber) {
         this.AccountNumber = AccountNumber;
     }
 
     public void setPin(int pin) {
         this.pin = pin;
+    }
+
+    public void setRequest(int Request) {
+        this.Request = Request;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+
+    public void setS_Request(String S_Request) {
+        this.S_Request = S_Request;
+    }
+
+    // getters
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     public int getAccountNumber() {
@@ -50,17 +74,13 @@ public class Client implements Serializable {
         return amount;
     }
 
-    public void setRequest(int Request) {
-        this.Request = Request;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public int getBalance() {
+        return balance;
     }
 
     @Override
     public String toString() {
-        return "Client{" + "AccountNumber=" + AccountNumber + ", pin=" + pin + ", Request=" + Request + ", amount=" + amount;
+        return "ATM client: Request to Server: " + S_Request + " ,of  " + amount + " Dollars. Account balance is: " + balance + " \n";
     }
 
 //0 = login,  1 = balance , 2 = withdrawl, 3 = deposit , 4 exit
