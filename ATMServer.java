@@ -88,16 +88,36 @@ public class ATMServer {
 
                     case 2: //Withdrawl
                         if (value != null) {
-                            //INSERT CODE FOR WITHDRAWL HERE
+                            for (Account account : ClientDatabase.accountList) {
+                                if (account.getAccountnum() == value) {
+                                    if (account.getBalance() > atmMessage.getAmount()) {
+                                        account.setBalance((account.getBalance() - atmMessage.getAmount()));
+                                        requestResponse(5, account.getBalance(), msg.getAddress());
+                                        System.out.println(account.getBalance());
+                                    }
+                                    else {
+                                        requestResponse(6, -1, msg.getAddress());
+                                    }
+                                }
+                            }
                         } else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
                         }
-
                     case 3: //Deposit
                         if (value != null) {
-                            //INSERT CODE FOR DEPOSIT HERE.
-                        } else {
+                            for (Account account : ClientDatabase.accountList) {
+                                if (account.getAccountnum() == value) {
+                                    account.setBalance((account.getBalance() + atmMessage.getAmount()));
+                                    requestResponse(5, account.getBalance(), msg.getAddress());
+                                    System.out.println(account.getBalance());
+                                }
+                                else {
+                                    requestResponse(6, -1, msg.getAddress());
+                                }
+                            }
+                        } 
+                        else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
                         }
