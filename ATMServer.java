@@ -88,14 +88,16 @@ public class ATMServer {
 
                     case 2: //Withdrawl
                         if (value != null) {
-                            if (account.getAccountnum() == value) {
-                                if (account.getBalance() > atmMessage.getAmount()) {
-                                    account.setBalance((account.getBalance() - atmMessage.getAmount()));
-                                    requestResponse(5, account.getBalance(), msg.getAddress());
-                                    System.out.println(account.getBalance());
-                                }
-                                else {
-                                    requestResponse(6, -1, msg.getAddress());
+                            for (Account account : ClientDatabase.accountList) {
+                                if (account.getAccountnum() == value) {
+                                    if (account.getBalance() > atmMessage.getAmount()) {
+                                        account.setBalance((account.getBalance() - atmMessage.getAmount()));
+                                        requestResponse(5, account.getBalance(), msg.getAddress());
+                                        System.out.println(account.getBalance());
+                                    }
+                                    else {
+                                        requestResponse(6, -1, msg.getAddress());
+                                    }
                                 }
                             }
                         } else {
@@ -104,11 +106,12 @@ public class ATMServer {
                         }
                     case 3: //Deposit
                         if (value != null) {
-                            if (account.getAccountnum() == value) {
-                                account.setBalance((account.getBalance() + atmMessage.getAmount()));
-                                requestResponse(5, account.getBalance(), msg.getAddress());
-                                System.out.println(account.getBalance());
-                               
+                            for (Account account : ClientDatabase.accountList) {
+                                if (account.getAccountnum() == value) {
+                                    account.setBalance((account.getBalance() + atmMessage.getAmount()));
+                                    requestResponse(5, account.getBalance(), msg.getAddress());
+                                    System.out.println(account.getBalance());
+                                }
                                 else {
                                     requestResponse(6, -1, msg.getAddress());
                                 }
