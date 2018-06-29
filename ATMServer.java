@@ -51,7 +51,7 @@ public class ATMServer {
 
                     case 0: //Login
                         if (value != null) {
-                            requestResponse(6, -1, msg.getAddress());
+                            requestResponse(6, -1, msg.getAddress(), msg.getPort());
                             System.out.println("This address already has an account signed in!");
                             break;
                         }
@@ -62,19 +62,20 @@ public class ATMServer {
                                 if (ClientDatabase.accountList.get(i).getAccountnum() == atmMessage.getAccountNumber()) {
                                     if (ClientDatabase.accountList.get(i).getPin() == atmMessage.getPin()) {
                                         openSessions.put(msg.getAddress(), atmMessage.getAccountNumber());
-                                        requestResponse(5, -1, msg.getAddress());
+                                        requestResponse(5, -1, msg.getAddress(), msg.getPort());
                                         System.out.println(msg.getAddress() + " has successfully signed in with account #" + atmMessage.getAccountNumber() + ".");
+                                        System.out.println(msg.getPort());
                                         foundAccount = true;
                                         break;
                                     } else {
-                                        requestResponse(6, -1, msg.getAddress());
+                                        requestResponse(6, -1, msg.getAddress(), msg.getPort());
                                         System.out.println("Wrong PIN for account #" + atmMessage.getAccountNumber() + ".");
                                         break;
                                     }
                                 }
                             }
                             if (foundAccount == false) {
-                                requestResponse(6, -1, msg.getAddress());
+                                requestResponse(6, -1, msg.getAddress(), msg.getPort());
                                 System.out.println("The account number #" + atmMessage.getAccountNumber() + " does not exist!");
                                 break;
                             }
@@ -85,30 +86,30 @@ public class ATMServer {
                         if (value != null) {
                             for (Account account : ClientDatabase.accountList) {
                                 if (account.getAccountnum() == value) {
-                                    requestResponse(5, account.getBalance(), msg.getAddress());
+                                    requestResponse(5, account.getBalance(), msg.getAddress(), msg.getPort());
                                     System.out.println("Account #" + value + "'s balance is " + account.getBalance());
                                     break;
                                 }
                             }
-                            break;
+                         
                         } else {
-                            requestResponse(6, -1, msg.getAddress());
+                            requestResponse(6, -1, msg.getAddress(), msg.getPort());
                             System.out.println("Not Logged In!");
-                            break;
+                            
                         }
-
+                        break;
                     case 2: //Withdrawl
                         if (value != null) {
                             for (Account account : ClientDatabase.accountList) {
                                 if (account.getAccountnum() == value) {
                                     if (account.getBalance() > atmMessage.getAmount()) {
                                         account.setBalance((account.getBalance() - atmMessage.getAmount()));
-                                        requestResponse(5, account.getBalance(), msg.getAddress());
+                                        requestResponse(5, account.getBalance(), msg.getAddress(), msg.getPort());
                                         System.out.println("After the withdrawal, account #" + value + "'s balance is " + account.getBalance());
                                         break;
                                     }
                                     else {
-                                        requestResponse(6, -1, msg.getAddress());
+                                        requestResponse(6, -1, msg.getAddress(), msg.getPort());
                                         System.out.println("Not enough funds for this withdrawal!");
                                         break;
                                     }
@@ -119,7 +120,7 @@ public class ATMServer {
                             }
                             break;
                         } else {
-                            requestResponse(6, -1, msg.getAddress());
+                            requestResponse(6, -1, msg.getAddress(), msg.getPort());
                             System.out.println("Not Logged In!");
                             break;
                         }
@@ -128,12 +129,12 @@ public class ATMServer {
                             for (Account account : ClientDatabase.accountList) {
                                 if (account.getAccountnum() == value) {
                                     account.setBalance((account.getBalance() + atmMessage.getAmount()));
-                                    requestResponse(5, account.getBalance(), msg.getAddress());
+                                    requestResponse(5, account.getBalance(), msg.getAddress(), msg.getPort());
                                     System.out.println("After the deposit, account #" + value + "'s balance is " + account.getBalance());
                                     break;
                                 }
                                 else {
-                                    requestResponse(6, -1, msg.getAddress());
+                                    requestResponse(6, -1, msg.getAddress(), msg.getPort());
                                     System.out.println("Account not found!");
                                     break;
                                 }
@@ -141,7 +142,7 @@ public class ATMServer {
                             break;
                         } 
                         else {
-                            requestResponse(6, -1, msg.getAddress());
+                            requestResponse(6, -1, msg.getAddress(), msg.getPort());
                             System.out.println("Not Logged In!");
                             break;
                         }
@@ -149,17 +150,17 @@ public class ATMServer {
                     case 4: //Logout
                         if (value != null) {
                             openSessions.remove(msg.getAddress());
-                            requestResponse(5, -1, msg.getAddress());
+                            requestResponse(5, -1, msg.getAddress(), msg.getPort());
                             System.out.println("Account #" + value + "(" + msg.getAddress() + ") has logged out of their session!");
                             break;
                         } else {
-                            requestResponse(6, -1, msg.getAddress());
+                            requestResponse(6, -1, msg.getAddress(), msg.getPort());
                             System.out.println("Not Logged In!");
                             break;
                         }
 
                     default:
-                        requestResponse(6, -1, msg.getAddress());
+                        requestResponse(6, -1, msg.getAddress(), msg.getPort());
                         System.out.println("Error. Request not valid or packet is not recognized.");
                         break;
                 }
@@ -178,7 +179,7 @@ public class ATMServer {
         // s.close();
     } // end of main
 
-    static public void requestResponse(int responseType, int responseAmount, InetAddress clientAddress) throws IOException, ClassNotFoundException {
+    static public void requestResponse(int responseType, int responseAmount, InetAddress clientAddress, int clientPort) throws IOException, ClassNotFoundException {
         DatagramSocket Socket;
         Socket = new DatagramSocket();
         Client response = new Client(responseType, -1, -1, responseAmount);
@@ -186,7 +187,7 @@ public class ATMServer {
         ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
         os.writeObject(response); // writes new client to send message
         byte[] b = outputStream.toByteArray(); // writes bytes to array
-        DatagramPacket msg = new DatagramPacket(b, b.length, clientAddress, 4445); // creates new datagram to send with coordinates
+        DatagramPacket msg = new DatagramPacket(b, b.length, clientAddress, clientPort); // creates new datagram to send with coordinates
         Socket.send(msg); // sends message
 
     }
