@@ -50,40 +50,51 @@ public class ATMServer {
                 switch (requestType) {
 
                     case 0: //Login
-                        int count = ClientDatabase.accountList.size();
-                        Boolean foundAccount = false;
-                        for (int i = 0; i <= count; i++) {
-                            if (ClientDatabase.accountList.get(i).getAccountnum() == atmMessage.getAccountNumber()) {
-                                if (ClientDatabase.accountList.get(i).getPin() == atmMessage.getPin()) {
-                                    openSessions.put(msg.getAddress(), atmMessage.getAccountNumber());
-                                    requestResponse(5, -1, msg.getAddress());
-                                    System.out.println(msg.getAddress() + " has successfully signed in with account #" + atmMessage.getAccountNumber() + ".");
-                                    foundAccount = true;
-                                    break;
-                                } else {
-                                    requestResponse(6, -1, msg.getAddress());
-                                    System.out.println("Wrong PIN for account #" + atmMessage.getAccountNumber() + ".");
-
+                        if (value != null) {
+                            requestResponse(6, -1, msg.getAddress());
+                            System.out.println("This address already has an account signed in!");
+                            break;
+                        }
+                        else {
+                            int count = ClientDatabase.accountList.size();
+                            Boolean foundAccount = false;
+                            for (int i = 0; i <= count; i++) {
+                                if (ClientDatabase.accountList.get(i).getAccountnum() == atmMessage.getAccountNumber()) {
+                                    if (ClientDatabase.accountList.get(i).getPin() == atmMessage.getPin()) {
+                                        openSessions.put(msg.getAddress(), atmMessage.getAccountNumber());
+                                        requestResponse(5, -1, msg.getAddress());
+                                        System.out.println(msg.getAddress() + " has successfully signed in with account #" + atmMessage.getAccountNumber() + ".");
+                                        foundAccount = true;
+                                        break;
+                                    } else {
+                                        requestResponse(6, -1, msg.getAddress());
+                                        System.out.println("Wrong PIN for account #" + atmMessage.getAccountNumber() + ".");
+                                        break;
+                                    }
                                 }
                             }
+                            if (foundAccount == false) {
+                                requestResponse(6, -1, msg.getAddress());
+                                System.out.println("The account number #" + atmMessage.getAccountNumber() + " does not exist!");
+                                break;
+                            }
+                            break;
                         }
-                        if (foundAccount == false) {
-                            requestResponse(6, -1, msg.getAddress());
-                            System.out.println("The account number #" + atmMessage.getAccountNumber() + " does not exist!");
-                        }
-                        break;
 
                     case 1: //Balance
                         if (value != null) {
                             for (Account account : ClientDatabase.accountList) {
                                 if (account.getAccountnum() == value) {
                                     requestResponse(5, account.getBalance(), msg.getAddress());
-                                    System.out.println(account.getBalance());
+                                    System.out.println("Account #" + value + "'s balance is " + account.getBalance());
+                                    break;
                                 }
                             }
+                            break;
                         } else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
+                            break;
                         }
 
                     case 2: //Withdrawl
@@ -93,16 +104,24 @@ public class ATMServer {
                                     if (account.getBalance() > atmMessage.getAmount()) {
                                         account.setBalance((account.getBalance() - atmMessage.getAmount()));
                                         requestResponse(5, account.getBalance(), msg.getAddress());
-                                        System.out.println(account.getBalance());
+                                        System.out.println("After the withdrawal, account #" + value + "'s balance is " + account.getBalance());
+                                        break;
                                     }
                                     else {
                                         requestResponse(6, -1, msg.getAddress());
+                                        System.out.println("Not enough funds for this withdrawal!");
+                                        break;
                                     }
                                 }
+                                else {
+                                    System.out.println("Account not found!");
+                                }
                             }
+                            break;
                         } else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
+                            break;
                         }
                     case 3: //Deposit
                         if (value != null) {
@@ -110,32 +129,42 @@ public class ATMServer {
                                 if (account.getAccountnum() == value) {
                                     account.setBalance((account.getBalance() + atmMessage.getAmount()));
                                     requestResponse(5, account.getBalance(), msg.getAddress());
-                                    System.out.println(account.getBalance());
+                                    System.out.println("After the deposit, account #" + value + "'s balance is " + account.getBalance());
+                                    break;
                                 }
                                 else {
                                     requestResponse(6, -1, msg.getAddress());
+                                    System.out.println("Account not found!");
+                                    break;
                                 }
                             }
+                            break;
                         } 
                         else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
+                            break;
                         }
 
                     case 4: //Logout
                         if (value != null) {
                             openSessions.remove(msg.getAddress());
                             requestResponse(5, -1, msg.getAddress());
-                            System.out.println("Account #" + atmMessage.getAccountNumber() + "(" + msg.getAddress() + ") has logged out of their session!");
+                            System.out.println("Account #" + value + "(" + msg.getAddress() + ") has logged out of their session!");
+                            break;
                         } else {
                             requestResponse(6, -1, msg.getAddress());
                             System.out.println("Not Logged In!");
+                            break;
                         }
 
                     default:
                         requestResponse(6, -1, msg.getAddress());
-                        System.out.println("Error");
+                        System.out.println("Error. Request not valid or packet is not recognized.");
+                        break;
                 }
+                
+                value = null;
                 
             } catch (SocketTimeoutException ste) {    // receive() timed out
                 System.err.println("Response timed out!");
